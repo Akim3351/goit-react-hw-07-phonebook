@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { ThreeDots } from 'react-loader-spinner';
 import {
   useDeleteContactMutation,
   useGetContactsQuery,
@@ -8,6 +7,7 @@ import {
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ContactsListItem from '../ContactsListItem/ContactsListItem';
+import Loader from 'components/Loader/Loader';
 import css from './ContactsList.module.css';
 
 const ContactsList = () => {
@@ -30,7 +30,7 @@ const ContactsList = () => {
   };
 
   if (isLoading) {
-    return <ThreeDots color="black" height={80} width={80} />;
+    return <Loader />;
   } else {
     return (
       <>
