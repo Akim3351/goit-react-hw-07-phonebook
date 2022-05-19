@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { addContact } from '../../redux/store';
+import {
+  useGetContactsQuery,
+  useAddContactMutation,
+} from 'redux/contactsSlice';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import shortid from 'shortid';
 import css from './ContactForm.module.css';
 
 const ContactForm = () => {
-  const dispatch = useDispatch();
-  const contacts = useSelector(state => state.contacts.contacts);
+  const { data = [] } = useGetContactsQuery();
   const [formValue, setFormValue] = useState({
     name: '',
-    number: '',
+    phone: '',
+  });
+  const [addContact] = useAddContactMutation();
+
+  const contactNamesForCheck = data.map(contact => {
+    return contact.name.toLowerCase();
   });
 
   const onFormChange = event => {
@@ -19,23 +25,23 @@ const ContactForm = () => {
     setFormValue({ ...formValue, [name]: value });
   };
 
-  const onFormSubmit = event => {
+  const onFormSubmit = async event => {
     event.preventDefault();
     const newContact = {
       id: shortid.generate(),
       ...formValue,
     };
 
-    const contactAllreadyExists = contacts.find(
-      contact => contact.name.toLowerCase() === newContact.name.toLowerCase()
+    const contactAllreadyExists = contactNamesForCheck.find(
+      item => item === newContact.name.toLowerCase()
     );
 
     if (contactAllreadyExists) {
-      toast.error(`${newContact.name} is already in contacts`);
+      toast.error(`${newContact.name}'s phone is already in your contacts`);
     } else {
-      dispatch(addContact(newContact));
-      toast.success(`${newContact.name} added to your contacts`);
-      setFormValue({ name: '', number: '' });
+      await addContact(newContact);
+      toast.success(`${newContact.name}'s phone added to your contacts`);
+      setFormValue({ name: '', phone: '' });
     }
   };
 
@@ -58,8 +64,8 @@ const ContactForm = () => {
           number
           <input
             type="tel"
-            name="number"
-            value={formValue.number}
+            name="phone"
+            value={formValue.phone}
             onChange={onFormChange}
             pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
             title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"

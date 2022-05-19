@@ -8,7 +8,7 @@ const Filter = () => {
   const filter = useSelector(state => state.filter);
 
   const onSearch = event => {
-    const filterValue = event.target.value;
+    const filterValue = event.target.value.toLowerCase();
     dispatch(setFilter(filterValue));
   };
 
